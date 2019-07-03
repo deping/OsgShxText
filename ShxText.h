@@ -144,6 +144,7 @@ private:
     float                                   _margin;
     unsigned int                            _lineCount;
     std::vector<int>                        _lineStops;
+    mutable std::vector<double>             _lineEmGlyphLength;
 
     mutable osg::Matrix                     _matrix;
     typedef osg::ref_ptr<osg::Vec2Array> Coords;
@@ -166,6 +167,7 @@ private:
 	osg::Vec3f emLeftBottom() const;
 	// when character height is m_EmHeight
 	float emLength() const;
+    double lineXOffset(int lineIndex);
 
 	friend class CRegBigFontShxParser;
 	friend class CShxParser;

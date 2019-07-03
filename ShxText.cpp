@@ -236,6 +236,7 @@ void ShxText::calEmGlyph() const
 	    shxParser.SetTextHeight(m_EmHeight);
         wchar_t* data = const_cast<wchar_t*>(_text.c_str());
         wchar_t* cur = data;
+        _lineEmGlyphLength.resize(size_t(_lineCount));
         for (unsigned int i = 0; i < _lineCount; ++i)
         {
             // Is it safe to change std::wstring temporarily?
@@ -245,6 +246,7 @@ void ShxText::calEmGlyph() const
 	        auto textLen = shxParser.GetTextExtent(cur);
             if (textLen > m_EmGlyphLength)
                 m_EmGlyphLength = textLen;
+            _lineEmGlyphLength[i] = textLen;
             if (c != L'\0')
                 data[_lineStops[i]] = c;
             cur += _lineStops[i] + 1;
@@ -316,7 +318,7 @@ void ShxText::build()
                     wchar_t c = data[_lineStops[i]];
                     if (c != L'\0')
                         data[_lineStops[i]] = L'\0';
-                    shxParser.DrawText(static_cast<IGlyphCallback*>(const_cast<ShxText*>(this)), cur, 0, (_lineCount - 1 - i) * _lineSpacing * m_EmHeight);
+                    shxParser.DrawText(static_cast<IGlyphCallback*>(const_cast<ShxText*>(this)), cur, lineXOffset(i), (_lineCount - 1 - i) * _lineSpacing * m_EmHeight);
                     if (c != L'\0')
                         data[_lineStops[i]] = c;
                     cur += _lineStops[i] + 1;
@@ -609,6 +611,29 @@ float ShxText::emLength() const
 {
 	calEmGlyph();
 	return m_EmGlyphLength * _widthRatio;
+}
+
+double ShxText::lineXOffset(int lineIndex)
+{
+    calEmGlyph();
+    double dx = 0;
+    ;
+    switch (_alignment / 3)
+    {
+    case LEFT:
+        dx = 0;
+        break;
+    case CENTER:
+        dx = 0.5*(m_EmGlyphLength - _lineEmGlyphLength[lineIndex]);
+        break;
+    case RIGHT:
+        dx = m_EmGlyphLength - _lineEmGlyphLength[lineIndex];
+        break;
+    default:
+        assert(false);
+        break;
+    }
+    return dx;
 }
 
 osg::BoundingBox ShxText::computeBoundingBox() const

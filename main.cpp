@@ -139,11 +139,15 @@ osg::Group* createTexts()
             //pText->setFont(font);
 
             if (i == 0)
+            {
+                pText->setAlignment(ShxText::AlignmentType::CENTER_CENTER);
                 pText->setCharacterSizeMode(TextType::SCREEN_COORDS);
+            }
             else if (i == 1)
                 pText->setCharacterSizeMode(TextType::OBJECT_COORDS_WITH_MAXIMUM_SCREEN_SIZE_CAPPED_BY_FONT_HEIGHT);
             else if (i == 2)
             {
+                pText->setAlignment(ShxText::AlignmentType::RIGHT_CENTER);
                 pText->setCharacterSizeMode(TextType::SCREEN_COORDS);
                 pText->setAutoRotateToScreen(true);
             }
