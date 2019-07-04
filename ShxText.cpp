@@ -62,7 +62,7 @@ void ShxText::setCharacterSize(float height)
 
 void ShxText::setCharacterSize(float height, float widthRatio)
 {
-    const float minFactor = 0.5f;
+    const float minFactor = 0.1f;
     assert(widthRatio >= minFactor);
     if (_widthRatio != widthRatio && widthRatio >= minFactor)
     {
