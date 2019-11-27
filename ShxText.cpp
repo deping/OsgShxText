@@ -249,7 +249,7 @@ void ShxText::calEmGlyph() const
             _lineEmGlyphLength[i] = textLen;
             if (c != L'\0')
                 data[_lineStops[i]] = c;
-            cur += _lineStops[i] + 1;
+            cur = data + _lineStops[i] + 1;
         }
     }
 
@@ -321,7 +321,7 @@ void ShxText::build()
                     shxParser.DrawText(static_cast<IGlyphCallback*>(const_cast<ShxText*>(this)), cur, lineXOffset(i), (_lineCount - 1 - i) * _lineSpacing * m_EmHeight);
                     if (c != L'\0')
                         data[_lineStops[i]] = c;
-                    cur += _lineStops[i] + 1;
+                    cur = data + _lineStops[i] + 1;
                 }
             }
             m_box = new osg::DrawArrays();
