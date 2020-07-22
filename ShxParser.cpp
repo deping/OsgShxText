@@ -709,7 +709,6 @@ bool CShxParser::IsEscapeChar(unsigned char character)
 
 double CShxParser::DrawText(IGlyphCallback* pGlyphCallback, const char* text, double x, double y)
 {
-	double vh = verticalHeight();
 	if(m_Type == UNIFONT)
 	{
 		USES_CONVERSION;
@@ -720,12 +719,7 @@ double CShxParser::DrawText(IGlyphCallback* pGlyphCallback, const char* text, do
 	{
 		m_Scale = m_TextHeight/m_FontHeight;
 		m_PenX = x;
-		if (m_layout == Layout::VERTICAL) {
-			m_PenY = y - vh;
-		}
-		else {
-			m_PenY = y;
-		}
+		m_PenY = y;
 		if(pGlyphCallback)
 		{
 			pGlyphCallback->glBegin(GL_LINE_STRIP);
@@ -747,10 +741,6 @@ double CShxParser::DrawText(IGlyphCallback* pGlyphCallback, const char* text, do
 				ParseGlyph(pGlyphCallback, *(unsigned char*)text);
 				++text;
 			}
-			if (m_layout == Layout::VERTICAL) {
-				m_PenX = x;
-				m_PenY -= vh;
-			}
 		}
 		if (pGlyphCallback)
 		{
@@ -761,9 +751,7 @@ double CShxParser::DrawText(IGlyphCallback* pGlyphCallback, const char* text, do
 	{
 		m_Scale = m_TextHeight/m_FontHeight;
 		m_PenX = x;
-		if (m_layout == Layout::VERTICAL) {
-			m_PenY = y - vh;
-		}
+		m_PenY = y;
 		if(pGlyphCallback)
 		{
 			pGlyphCallback->glBegin(GL_LINE_STRIP);
@@ -773,10 +761,6 @@ double CShxParser::DrawText(IGlyphCallback* pGlyphCallback, const char* text, do
 		{
 			ParseGlyph(pGlyphCallback, *(unsigned char*)text);
 			++text;
-			if (m_layout == Layout::VERTICAL) {
-				m_PenX = x;
-				m_PenY -= vh;
-			}
 		}
 		pGlyphCallback->glEnd();
 	}
@@ -784,30 +768,16 @@ double CShxParser::DrawText(IGlyphCallback* pGlyphCallback, const char* text, do
 	{
 		//do nothing.
 	}
-	switch (m_layout) {
-	case Layout::LEFT_TO_RIGHT:
-		return m_PenX - x;
-	case Layout::VERTICAL:
-		return m_PenY - y + vh;
-	}
-	return 0;
+	return m_PenX - x;
 }
 
 double CShxParser::DrawText(IGlyphCallback* pGlyphCallback, const wchar_t* text, double x, double y)
 {
-	double vh = verticalHeight();
 	if(m_Type == UNIFONT)
 	{
 		m_Scale = m_TextHeight/m_FontHeight;
 		m_PenX = x;
-		if (m_layout == Layout::VERTICAL)
-		{
-			m_PenY = y - vh;
-		}
-		else
-		{
-			m_PenY = y;
-		}
+		m_PenY = y;
 		if(pGlyphCallback)
 		{
 			pGlyphCallback->glBegin(GL_LINE_STRIP);
@@ -816,11 +786,6 @@ double CShxParser::DrawText(IGlyphCallback* pGlyphCallback, const wchar_t* text,
 		while(*text != 0)
 		{
 			ParseGlyph(pGlyphCallback, *text++);
-			if (m_layout == Layout::VERTICAL)
-			{
-				m_PenX = x;
-				m_PenY -= vh;
-			}
 		}
 		if (pGlyphCallback)
 		{
@@ -837,14 +802,7 @@ double CShxParser::DrawText(IGlyphCallback* pGlyphCallback, const wchar_t* text,
 	{
 		//do nothing.
 	}
-	switch (m_layout)
-	{
-	case Layout::LEFT_TO_RIGHT:
-		return m_PenX - x;
-	case Layout::VERTICAL:
-		return m_PenY - y + vh;
-	}
-	return 0;
+	return m_PenX - x;
 }
 
 void CShxParser::setLayout(Layout layout)

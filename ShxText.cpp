@@ -721,7 +721,8 @@ double ShxText::lineXOffset(int lineIndex)
 		}
 		return dx;
 	}
-	else {
+	else
+	{
 		double ew = emWidth();
 		double dx = ew * _lineSpacing * lineIndex;
 		double width = ew * (1 + _lineSpacing * (_lineCount - 1));
