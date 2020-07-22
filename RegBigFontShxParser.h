@@ -10,6 +10,7 @@
 #pragma once
 #include "ShxParser.h"
 #include "IGlyphCallback.h"
+#include "TextLayout.h"
 
 #pragma push_macro("DrawText")
 #undef DrawText
@@ -32,6 +33,9 @@ public:
 	//draw text from left bottom (x,y)
 	double DrawText(IGlyphCallback* pGlyphCallback, const char* text, double x, double y);
 	double DrawText(IGlyphCallback* pGlyphCallback, const wchar_t* text, double x, double y);
+	void setLayout(Layout layout);
+	void setVKerning(double vkerning);
+
 private:
 	CShxParser m_RegFontShx;
 	CShxParser m_BigFontShx;

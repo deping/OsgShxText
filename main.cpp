@@ -91,7 +91,7 @@ MyBBox::MyBBox(osg::Drawable* drawable)
     setUpdateCallback(new UpdateBBox);
 }
 
-const int rowColSize = 5;
+const int rowColSize = 1;
 const int textHeight = 15;
 const float lineSpacing = 1.5f;
 const float rowHeight = 2 * lineSpacing * textHeight;
@@ -119,7 +119,7 @@ osg::Group* createTexts()
                 pText->setCharacterSize(textHeight, 0.75);
             else
                 pText->setCharacterSize(textHeight);
-            pText->setText(L"Hello, China\n你好, 中国");
+			pText->setText(L"春眠不觉晓\n处处闻啼鸟\n夜来风雨声\n花落知多少\nwangwei");
             pText->setFontFile("txt.shx", "hztxt.shx");//THFont.shx gbcbig.shx
 
             //osg::ref_ptr<osg::Geometry> pLine = new osg::Geometry;
@@ -138,19 +138,19 @@ osg::Group* createTexts()
             //pText->setCharacterSize(10);
             //pText->setFont(font);
 
-            if (i == 0)
-            {
-                pText->setAlignment(ShxText::AlignmentType::CENTER_CENTER);
-                pText->setCharacterSizeMode(TextType::SCREEN_COORDS);
-            }
-            else if (i == 1)
-                pText->setCharacterSizeMode(TextType::OBJECT_COORDS_WITH_MAXIMUM_SCREEN_SIZE_CAPPED_BY_FONT_HEIGHT);
-            else if (i == 2)
-            {
-                pText->setAlignment(ShxText::AlignmentType::RIGHT_CENTER);
-                pText->setCharacterSizeMode(TextType::SCREEN_COORDS);
-                pText->setAutoRotateToScreen(true);
-            }
+            //if (i == 0)
+            //{
+            //    pText->setAlignment(ShxText::AlignmentType::CENTER_CENTER);
+            //    pText->setCharacterSizeMode(TextType::SCREEN_COORDS);
+            //}
+            //else if (i == 1)
+            //    pText->setCharacterSizeMode(TextType::OBJECT_COORDS_WITH_MAXIMUM_SCREEN_SIZE_CAPPED_BY_FONT_HEIGHT);
+            //else if (i == 2)
+            //{
+            //    pText->setAlignment(ShxText::AlignmentType::RIGHT_CENTER);
+            //    pText->setCharacterSizeMode(TextType::SCREEN_COORDS);
+            //    pText->setAutoRotateToScreen(true);
+            //}
             pText->showBox(true);
             pText->setBoxMargin(6);
 
@@ -160,7 +160,17 @@ osg::Group* createTexts()
             pText->setPosition(osg::Vec3(colWidth * i, pText->getLineCount() * rowHeight * j, 0));
 
             geode->addDrawable(pText);
-            //geode->addDrawable(new MyBBox(pText.get()));
+            geode->addDrawable(new MyBBox(pText.get()));
+
+			//osg::ref_ptr<ShxText> pText2 = new ShxText();
+			//pText2->setPosition(osg::Vec3(colWidth * i, pText->getLineCount() * rowHeight * j, 0));
+			//pText2->setCharacterSize(textHeight);
+			//pText2->setLayout(Layout::VERTICAL);
+			//pText2->setText(L"春眠不觉晓\n处处闻啼鸟\n夜来风雨声\n花落知多少\nwangwei");
+			//pText2->setFontFile("txt.shx", "hztxt.shx");//THFont.shx gbcbig.shx
+			//pText2->setBoxMargin(6);
+			//pText2->showBox(true);
+			//geode->addDrawable(pText2);
             
        }
     }

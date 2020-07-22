@@ -13,6 +13,7 @@
 #include <osg/Geometry>
 #include <osg/BoundingBox>
 #include "IGlyphCallback.h"
+#include "TextLayout.h"
 
 class ShxText : 
 	public osg::Geometry, private IGlyphCallback
@@ -110,6 +111,11 @@ public:
     void showBox(bool val);
     void setBoxMargin(float m);
 
+	void setLayout(Layout layout);
+	Layout getLayout() const { return _layout; }
+	void setVKerning(double vkerning);
+	double getVKerning() const { return _verticalKerning; }
+
     /** Get the number of wrapped lines - only valid after computeGlyphRepresentation() has been called, returns 0 otherwise */
     unsigned int getLineCount() const { return _lineCount; }
 
@@ -140,6 +146,8 @@ private:
     AlignmentType                           _alignment;
     osg::Quat                               _rotation;
     bool                                    _autoRotateToScreen;
+	Layout                                  _layout;
+	double									_verticalKerning;
     bool                                    _showBox;
     float                                   _margin;
     unsigned int                            _lineCount;
@@ -167,7 +175,9 @@ private:
 	osg::Vec3f emLeftBottom() const;
 	// when character height is m_EmHeight
 	float emLength() const;
+	float emWidth() const;
     double lineXOffset(int lineIndex);
+    double lineYOffset(int lineIndex);
 
 	friend class CRegBigFontShxParser;
 	friend class CShxParser;

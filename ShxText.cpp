@@ -93,7 +93,9 @@ ShxText::ShxText(void)
     , _position()
     , _rotation()
     , _autoRotateToScreen(false)
-    , _showBox(false)
+	, _layout(Layout::LEFT_TO_RIGHT)
+	, _verticalKerning(1.4)
+	, _showBox(false)
     , _margin(0.f)
     , _lineCount(1)
     , _coords()
@@ -126,6 +128,8 @@ ShxText::ShxText(const ShxText& st, const osg::CopyOp& copyop)
     , _position(st._position)
     , _rotation(st._rotation)
     , _autoRotateToScreen(st._autoRotateToScreen)
+	, _layout(st._layout)
+	, _verticalKerning(st._verticalKerning)
     , _showBox(st._showBox)
     , _margin(st._margin)
     , _lineCount(st._lineCount)
@@ -233,6 +237,8 @@ void ShxText::calEmGlyph() const
     {
 	    CRegBigFontShxParser shxParser;
 	    shxParser.Init(m_RegFontFile.c_str(), m_BigFontFile.c_str());
+		shxParser.setLayout(_layout);
+		shxParser.setVKerning(_verticalKerning);
 	    shxParser.SetTextHeight(m_EmHeight);
         wchar_t* data = const_cast<wchar_t*>(_text.c_str());
         wchar_t* cur = data;
@@ -259,36 +265,73 @@ void ShxText::calEmGlyph() const
 osg::Vec3f ShxText::emLeftBottom() const
 {
 	float dx = 0, dy = 0;
-    float incX = emLength();
-	switch(_alignment / 3)
-	{
-	case LEFT:
-		dx = 0;
-		break;
-	case CENTER:
-		dx = -0.5*incX;
-		break;
-	case RIGHT:
-		dx = -incX;
-		break;
-	default:
-		assert(false);
-		break;
+	if (_layout == Layout::LEFT_TO_RIGHT) {
+		float incX = emLength();
+		switch (_alignment / 3)
+		{
+		case LEFT:
+			dx = 0;
+			break;
+		case CENTER:
+			dx = -0.5*incX;
+			break;
+		case RIGHT:
+			dx = -incX;
+			break;
+		default:
+			assert(false);
+			break;
+		}
+		switch (_alignment % 3)
+		{
+		case TOP:
+			dy = -m_EmHeight * (1 + _lineSpacing * (_lineCount - 1));
+			break;
+		case VCENTER:
+			dy = -0.5 * m_EmHeight * (1 + _lineSpacing * (_lineCount - 1));
+			break;
+		case BOTTOM:
+			dy = 0;
+			break;
+		default:
+			assert(false);
+			break;
+		}
 	}
-	switch(_alignment % 3)
-	{
-	case TOP:
-		dy = -m_EmHeight * (1 + _lineSpacing * (_lineCount - 1));
-		break;
-	case VCENTER:
-		dy = -0.5 * m_EmHeight * (1 + _lineSpacing * (_lineCount - 1));
-		break;
-	case BOTTOM:
-		dy = 0;
-		break;
-	default:
-		assert(false);
-		break;
+	else if (_layout == Layout::VERTICAL) {
+		double ew = emWidth();
+		float incX = ew * (1 + _lineSpacing * (_lineCount - 1));
+		switch (_alignment / 3)
+		{
+		case LEFT:
+			dx = 0;
+			break;
+		case CENTER:
+			dx = -0.5*incX;
+			break;
+		case RIGHT:
+			dx = -incX;
+			break;
+		default:
+			assert(false);
+			break;
+		}
+		float incY = emLength();
+		switch (_alignment % 3)
+		{
+		case TOP:
+			dy = -incY;
+			break;
+		case VCENTER:
+			dy = -0.5 * incY;
+			break;
+		case BOTTOM:
+			dy = 0;
+			break;
+		default:
+			assert(false);
+			break;
+		}
 	}
 	return osg::Vec3f(dx, dy, 0);
 }
@@ -309,7 +352,9 @@ void ShxText::build()
             {
                 CRegBigFontShxParser shxParser;
                 shxParser.Init(m_RegFontFile.c_str(), m_BigFontFile.c_str());
-                shxParser.SetTextHeight(m_EmHeight);
+				shxParser.setLayout(_layout);
+				shxParser.setVKerning(_verticalKerning);
+				shxParser.SetTextHeight(m_EmHeight);
                 wchar_t* data = const_cast<wchar_t*>(_text.c_str());
                 wchar_t* cur = data;
                 for (unsigned int i = 0; i < _lineCount; ++i)
@@ -318,24 +363,37 @@ void ShxText::build()
                     wchar_t c = data[_lineStops[i]];
                     if (c != L'\0')
                         data[_lineStops[i]] = L'\0';
-                    shxParser.DrawText(static_cast<IGlyphCallback*>(const_cast<ShxText*>(this)), cur, lineXOffset(i), (_lineCount - 1 - i) * _lineSpacing * m_EmHeight);
-                    if (c != L'\0')
+
+					shxParser.DrawText(static_cast<IGlyphCallback*>(const_cast<ShxText*>(this)), cur, lineXOffset(i), lineYOffset(i));
+					if (c != L'\0')
                         data[_lineStops[i]] = c;
                     cur = data + _lineStops[i] + 1;
                 }
             }
             m_box = new osg::DrawArrays();
             int first = int(_coords->size());
-            double len = emLength();
-            double margin = _margin / _characterHeight * m_EmHeight;
-            osg::Vec2f lb2(-margin, -margin);
-            _coords->push_back(lb2);
-            lb2.x() = len + margin;
-            _coords->push_back(lb2);
-            lb2.y() = m_EmHeight * (1 + _lineSpacing * (_lineCount - 1)) + margin;
-            _coords->push_back(lb2);
-            lb2.x() = -margin;
-            _coords->push_back(lb2);
+			double len = emLength();
+			double margin = _margin / _characterHeight * m_EmHeight;
+			osg::Vec2f lb2(-margin, -margin);
+			_coords->push_back(lb2);
+			if (_layout == Layout::LEFT_TO_RIGHT) {
+				lb2.x() = len + margin;
+				_coords->push_back(lb2);
+				lb2.y() = m_EmHeight * (1 + _lineSpacing * (_lineCount - 1)) + margin;
+				_coords->push_back(lb2);
+				lb2.x() = -margin;
+				_coords->push_back(lb2);
+			}
+			else {
+				double ew = emWidth();
+				double width = ew * (1 + _lineSpacing * (_lineCount - 1));
+				lb2.x() = width + margin;
+				_coords->push_back(lb2);
+				lb2.y() = m_EmGlyphLength + margin;
+				_coords->push_back(lb2);
+				lb2.x() = -margin;
+				_coords->push_back(lb2);
+			}
             m_box->set(GL_LINE_LOOP, first, 4);
             if (_showBox)
             {
@@ -485,6 +543,25 @@ void ShxText::setBoxMargin(float m)
     }
 }
 
+void ShxText::setLayout(Layout layout)
+{
+	if (layout == _layout)
+		return;
+	// RIGHT_TO_LEFT not implemented
+	if (layout == Layout::RIGHT_TO_LEFT)
+		return;
+	_layout = layout;
+	m_EmGlyphLengthValid = true;
+}
+
+void ShxText::setVKerning(double vkerning)
+{
+	if (vkerning != _verticalKerning) {
+		_verticalKerning = vkerning;
+		m_EmGlyphLengthValid = true;
+	}
+}
+
 bool ShxText::computeMatrix(osg::Matrix& matrix, osg::State* state) const
 {
     osg::Vec3 offset = emLeftBottom();
@@ -610,30 +687,73 @@ bool ShxText::computeMatrix(osg::Matrix& matrix, osg::State* state) const
 float ShxText::emLength() const
 {
 	calEmGlyph();
-	return m_EmGlyphLength * _widthRatio;
+	if (_layout == Layout::LEFT_TO_RIGHT)
+		return m_EmGlyphLength * _widthRatio;
+	else
+		return m_EmGlyphLength;
+}
+
+float ShxText::emWidth() const
+{
+	return m_EmHeight * 1.0 * _widthRatio;
 }
 
 double ShxText::lineXOffset(int lineIndex)
 {
-    calEmGlyph();
-    double dx = 0;
-    ;
-    switch (_alignment / 3)
-    {
-    case LEFT:
-        dx = 0;
-        break;
-    case CENTER:
-        dx = 0.5*(m_EmGlyphLength - _lineEmGlyphLength[lineIndex]);
-        break;
-    case RIGHT:
-        dx = m_EmGlyphLength - _lineEmGlyphLength[lineIndex];
-        break;
-    default:
-        assert(false);
-        break;
-    }
-    return dx;
+	calEmGlyph();
+	if (_layout == Layout::LEFT_TO_RIGHT) {
+		double dx = 0;
+
+		switch (_alignment / 3)
+		{
+		case LEFT:
+			dx = 0;
+			break;
+		case CENTER:
+			dx = 0.5*(m_EmGlyphLength - _lineEmGlyphLength[lineIndex]);
+			break;
+		case RIGHT:
+			dx = m_EmGlyphLength - _lineEmGlyphLength[lineIndex];
+			break;
+		default:
+			assert(false);
+			break;
+		}
+		return dx;
+	}
+	else {
+		double ew = emWidth();
+		double dx = ew * _lineSpacing * lineIndex;
+		double width = ew * (1 + _lineSpacing * (_lineCount - 1));
+		switch (_alignment / 3)
+		{
+		case LEFT:
+			dx -= 0;
+			break;
+		case CENTER:
+			dx -= 0.5 * width;
+			break;
+		case RIGHT:
+			dx -= width;
+			break;
+		default:
+			assert(false);
+			break;
+		}
+		return dx;
+	}
+}
+
+double ShxText::lineYOffset(int lineIndex)
+{
+	if (_layout == Layout::LEFT_TO_RIGHT)
+	{
+		return (_lineCount - 1 - lineIndex) * _lineSpacing * m_EmHeight;
+	}
+	else
+	{
+		return ShxText::emLength();
+	}
 }
 
 osg::BoundingBox ShxText::computeBoundingBox() const
@@ -646,7 +766,15 @@ osg::BoundingBox ShxText::computeBoundingBox() const
         //computeMatrix(modelview, nullptr);
         auto len = emLength();
         osg::BoundingBox  tmp;
-        tmp.set(0, 0, 0, len, m_EmHeight * (1 + _lineSpacing * (_lineCount - 1)), 0);
+		if (_layout == Layout::LEFT_TO_RIGHT)
+		{
+        	tmp.set(0, 0, 0, len, m_EmHeight * (1 + _lineSpacing * (_lineCount - 1)), 0);
+		}
+		else
+		{
+			double ew = emWidth();
+        	tmp.set(0, -len, 0, ew * (1 + _lineSpacing * (_lineCount - 1)), 0, 0);
+		}
         bbox.expandBy(tmp.corner(0)*_matrix);
         bbox.expandBy(tmp.corner(1)*_matrix);
         bbox.expandBy(tmp.corner(2)*_matrix);
