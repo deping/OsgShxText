@@ -39,6 +39,8 @@ public:
 private:
 	CShxParser m_RegFontShx;
 	CShxParser m_BigFontShx;
+	Layout m_layout;
+	double m_verticalKerning;
 };
 
 void CRegBigFontShxParser::SetTextHeight(double height)

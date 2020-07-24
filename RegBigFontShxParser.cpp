@@ -58,9 +58,8 @@ double CRegBigFontShxParser::DrawText(IGlyphCallback* pGlyphCallback, const char
 {
 	//sync pen position in 2 files
 	m_BigFontShx.m_PenX = m_RegFontShx.m_PenX = x;
-	double vh = m_RegFontShx.verticalHeight();
-	auto layout = m_RegFontShx.getLayout();
-	if (layout == Layout::VERTICAL)
+	double vh = GetTextHeight() * m_verticalKerning;
+	if (m_layout == Layout::VERTICAL)
 	{
 		y -= vh;
 	}
@@ -87,7 +86,7 @@ double CRegBigFontShxParser::DrawText(IGlyphCallback* pGlyphCallback, const char
 			unsigned short character = MAKEWORD(second, first);
 			m_BigFontShx.ParseGlyph(pGlyphCallback, /**(unsigned short*)text*/character);
 			text += 2;
-			if (layout == Layout::VERTICAL)
+			if (m_layout == Layout::VERTICAL)
 			{
 				m_BigFontShx.m_PenX = x;
 				y -= vh;
@@ -105,7 +104,7 @@ double CRegBigFontShxParser::DrawText(IGlyphCallback* pGlyphCallback, const char
 		{
 			m_RegFontShx.ParseGlyph(pGlyphCallback, *(unsigned char*)text);
 			++text;
-			if (layout == Layout::VERTICAL)
+			if (m_layout == Layout::VERTICAL)
 			{
 				m_RegFontShx.m_PenX = x;
 				y -= vh;
@@ -119,7 +118,7 @@ double CRegBigFontShxParser::DrawText(IGlyphCallback* pGlyphCallback, const char
 				(m_RegFontShx.m_Scale / (m_RegFontShx.m_TextHeight/m_RegFontShx.m_FontHeight));
 			draw = m_RegFontShx.drawMode();
 		}
-		if (layout == Layout::VERTICAL && !draw && pGlyphCallback) {
+		if (m_layout == Layout::VERTICAL && !draw && pGlyphCallback) {
 			// some English letters such as 'i', 'n', they use the end point of last letter as the start point.
 			// so when layout is vertical, their shapes will be wrong.
 			// this if statement fixes the problem.
@@ -134,7 +133,7 @@ double CRegBigFontShxParser::DrawText(IGlyphCallback* pGlyphCallback, const char
 		pGlyphCallback->glEnd();
 	}
 
-	switch (layout)
+	switch (m_layout)
 	{
 	case Layout::LEFT_TO_RIGHT:
 		return m_RegFontShx.m_PenX - x;
@@ -153,12 +152,13 @@ double CRegBigFontShxParser::DrawText(IGlyphCallback* pGlyphCallback, const wcha
 
 void CRegBigFontShxParser::setLayout(Layout layout)
 {
-	m_RegFontShx.setLayout(layout);
-	m_BigFontShx.setLayout(layout);
+	// RIGHT_TO_LEFT not implemented
+	if (layout == Layout::RIGHT_TO_LEFT)
+		return;
+	m_layout = layout;
 }
 
 void CRegBigFontShxParser::setVKerning(double vkerning)
 {
-	m_RegFontShx.setVKerning(vkerning);
-	m_BigFontShx.setVKerning(vkerning);
+	m_verticalKerning = vkerning;
 }

@@ -114,7 +114,6 @@ inline void Rad2Deg(float& x)
 
 CShxParser::CShxParser()
 {
-	m_layout = Layout::LEFT_TO_RIGHT;
 	m_Type = UNKNOWN;
 }
 
@@ -151,7 +150,7 @@ void CShxParser::Init(const char* FileName)
 		m_Type = UNIFONT;
 		m_GlyphCount = *(unsigned short*)&m_pStart[25];
 		m_pShapeDefs = &m_pStart[31];
-		//skip description of Ansi font£¬include trailing zero.
+		//skip description of Ansi fontï¿½ï¿½include trailing zero.
 		while(*m_pShapeDefs != 0)
 			++m_pShapeDefs;
 		++m_pShapeDefs;
@@ -212,8 +211,6 @@ void CShxParser::Init(const char* FileName)
 }
 
 CShxParser::CShxParser(const char* FileName)
-	: m_layout(Layout::LEFT_TO_RIGHT)
-
 {
 	Init(FileName);
 }
@@ -427,7 +424,7 @@ void CShxParser::ParseOneCode(IGlyphCallback* pGlyphCallback, const unsigned cha
 	case 8://next 2 bytes stands for signed offset (x, y)
 		Case_Code_8(pGlyphCallback, pDefBytes, defbytes);
 		break;
-	case 9://a series of 2 bytes stands for signed offset (x, y), until (0£¬0)
+	case 9://a series of 2 bytes stands for signed offset (x, y), until (0ï¿½ï¿½0)
 		while(Case_Code_8(pGlyphCallback, pDefBytes, defbytes))
 			;
 		break;
@@ -505,10 +502,10 @@ void CShxParser::ParseOneCode(IGlyphCallback* pGlyphCallback, const unsigned cha
 			}
 		}
 		break;
-	case 0xC://£¨x£¬y£¬b£©
+	case 0xC://ï¿½ï¿½xï¿½ï¿½yï¿½ï¿½bï¿½ï¿½
 		Case_Code_C(pGlyphCallback, pDefBytes, defbytes);
 		break;
-	case 0xD://£¨x£¬y£¬b£©£¬...,(0,0)
+	case 0xD://ï¿½ï¿½xï¿½ï¿½yï¿½ï¿½bï¿½ï¿½ï¿½ï¿½...,(0,0)
 		while(Case_Code_C(pGlyphCallback, pDefBytes, defbytes))
 			;
 		break;
@@ -803,19 +800,6 @@ double CShxParser::DrawText(IGlyphCallback* pGlyphCallback, const wchar_t* text,
 		//do nothing.
 	}
 	return m_PenX - x;
-}
-
-void CShxParser::setLayout(Layout layout)
-{
-	// RIGHT_TO_LEFT not implemented
-	if (layout == Layout::RIGHT_TO_LEFT)
-		return;
-	m_layout = layout;
-}
-
-void CShxParser::setVKerning(double vkerning)
-{
-	_verticalKerning = vkerning;
 }
 
 void CShxParser::ResetNextGlyph()

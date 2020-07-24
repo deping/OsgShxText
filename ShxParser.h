@@ -12,7 +12,6 @@
 #include <vector>
 #include <stack>
 #include "IGlyphCallback.h"
-#include "TextLayout.h"
 
 enum SHX_TYPE {REGFONT, UNIFONT, BIGFONT, SHAPEFILE, UNKNOWN};
 struct EscapeRange
@@ -44,10 +43,6 @@ public:
 	double DrawText(IGlyphCallback* pGlyphCallback, const char* text, double x, double y);
 	double DrawText(IGlyphCallback* pGlyphCallback, const wchar_t* text, double x, double y);
 	SHX_TYPE GetType(){return m_Type;}
-	void setLayout(Layout layout);
-	Layout getLayout() const { return m_layout; }
-	void setVKerning(double vkerning);
-	double getVKerning() const { return _verticalKerning; }
 	bool drawMode() const { return m_bDrawMode; }
 
 private:
@@ -60,7 +55,6 @@ private:
 	void ParseLenDirByte(IGlyphCallback* pGlyphCallback, unsigned char thebyte);
 	bool IsEscapeChar(unsigned char character);
 	void DrawLine(IGlyphCallback* pGlyphCallback);
-	double verticalHeight() const { return m_TextHeight * _verticalKerning; }
 
 	double m_TextHeight;//text upper height
 	unsigned int m_DescendHeight;//text lower height recorded in font file
@@ -84,8 +78,6 @@ private:
 		int m_GlyphCount;//character count
 	};
 	std::string m_ShxFileName;
-	Layout m_layout;
-	double _verticalKerning;
 
 public:
 	//The next 2 functions traverse all characters in font file
