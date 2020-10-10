@@ -13,7 +13,7 @@
 #include <stack>
 #include "IGlyphCallback.h"
 
-enum SHX_TYPE {REGFONT, UNIFONT, BIGFONT, SHAPEFILE, UNKNOWN};
+enum SHX_TYPE { REGFONT, UNIFONT, BIGFONT, SHAPEFILE, UNKNOWN };
 struct EscapeRange
 {
 	unsigned char start;
@@ -40,9 +40,9 @@ public:
 	inline double GetTextExtent(const char* text);
 	inline double GetTextExtent(const wchar_t* text);
 	//draw text from left bottom (x,y)
-	double DrawText(IGlyphCallback* pGlyphCallback, const char* text, double x, double y);
-	double DrawText(IGlyphCallback* pGlyphCallback, const wchar_t* text, double x, double y);
-	SHX_TYPE GetType(){return m_Type;}
+	void DrawText(IGlyphCallback* pGlyphCallback, const char* text, double x, double y);
+	void DrawText(IGlyphCallback* pGlyphCallback, const wchar_t* text, double x, double y);
+	SHX_TYPE GetType() { return m_Type; }
 	bool drawMode() const { return m_bDrawMode; }
 
 private:
@@ -98,7 +98,7 @@ private:
 void CShxParser::SetTextHeight(double height)
 {
 	//assert(height > 0.0);
-	m_TextHeight = height>0.0f?height:-height;
+	m_TextHeight = height > 0.0f ? height : -height;
 }
 
 double CShxParser::GetTextHeight()
@@ -108,11 +108,15 @@ double CShxParser::GetTextHeight()
 
 double CShxParser::GetTextExtent(const char* text)
 {
-	return DrawText(nullptr, text, 0, 0);
+	WidthGlyphCallback gcb;
+	DrawText(&gcb, text, 0, 0);
+	return gcb.getWidth();
 }
 
 double CShxParser::GetTextExtent(const wchar_t* text)
 {
-	return DrawText(nullptr, text, 0, 0);
+	WidthGlyphCallback gcb;
+	DrawText(&gcb, text, 0, 0);
+	return gcb.getWidth();
 }
-#pragma pop_macro("DrawText") 
+#pragma pop_macro("DrawText")

@@ -93,7 +93,7 @@ ShxText::ShxText(void)
     , _position()
     , _rotation()
     , _autoRotateToScreen(false)
-	, _layout(Layout::LEFT_TO_RIGHT)
+	, _layout(TextLayout::LEFT_TO_RIGHT)
 	, _verticalKerning(1.4)
 	, _showBox(false)
     , _margin(0.f)
@@ -265,7 +265,7 @@ void ShxText::calEmGlyph() const
 osg::Vec3f ShxText::emLeftBottom() const
 {
 	float dx = 0, dy = 0;
-	if (_layout == Layout::LEFT_TO_RIGHT) {
+	if (_layout == TextLayout::LEFT_TO_RIGHT) {
 		float incX = emLength();
 		switch (_alignment / 3)
 		{
@@ -298,7 +298,7 @@ osg::Vec3f ShxText::emLeftBottom() const
 			break;
 		}
 	}
-	else if (_layout == Layout::VERTICAL) {
+	else if (_layout == TextLayout::VERTICAL) {
 		double ew = emWidth();
 		float incX = ew * (1 + _lineSpacing * (_lineCount - 1));
 		switch (_alignment / 3)
@@ -376,7 +376,7 @@ void ShxText::build()
 			double margin = _margin / _characterHeight * m_EmHeight;
 			osg::Vec2f lb2(-margin, -margin);
 			_coords->push_back(lb2);
-			if (_layout == Layout::LEFT_TO_RIGHT) {
+			if (_layout == TextLayout::LEFT_TO_RIGHT) {
 				lb2.x() = len + margin;
 				_coords->push_back(lb2);
 				lb2.y() = m_EmHeight * (1 + _lineSpacing * (_lineCount - 1)) + margin;
@@ -543,12 +543,12 @@ void ShxText::setBoxMargin(float m)
     }
 }
 
-void ShxText::setLayout(Layout layout)
+void ShxText::setLayout(TextLayout layout)
 {
 	if (layout == _layout)
 		return;
 	// RIGHT_TO_LEFT not implemented
-	if (layout == Layout::RIGHT_TO_LEFT)
+	if (layout == TextLayout::RIGHT_TO_LEFT)
 		return;
 	_layout = layout;
 	m_EmGlyphLengthValid = true;
@@ -687,7 +687,7 @@ bool ShxText::computeMatrix(osg::Matrix& matrix, osg::State* state) const
 float ShxText::emLength() const
 {
 	calEmGlyph();
-	if (_layout == Layout::LEFT_TO_RIGHT)
+	if (_layout == TextLayout::LEFT_TO_RIGHT)
 		return m_EmGlyphLength * _widthRatio;
 	else
 		return m_EmGlyphLength;
@@ -701,7 +701,7 @@ float ShxText::emWidth() const
 double ShxText::lineXOffset(int lineIndex)
 {
 	calEmGlyph();
-	if (_layout == Layout::LEFT_TO_RIGHT) {
+	if (_layout == TextLayout::LEFT_TO_RIGHT) {
 		double dx = 0;
 
 		switch (_alignment / 3)
@@ -747,7 +747,7 @@ double ShxText::lineXOffset(int lineIndex)
 
 double ShxText::lineYOffset(int lineIndex)
 {
-	if (_layout == Layout::LEFT_TO_RIGHT)
+	if (_layout == TextLayout::LEFT_TO_RIGHT)
 	{
 		return (_lineCount - 1 - lineIndex) * _lineSpacing * m_EmHeight;
 	}
@@ -767,7 +767,7 @@ osg::BoundingBox ShxText::computeBoundingBox() const
         //computeMatrix(modelview, nullptr);
         auto len = emLength();
         osg::BoundingBox  tmp;
-		if (_layout == Layout::LEFT_TO_RIGHT)
+		if (_layout == TextLayout::LEFT_TO_RIGHT)
 		{
         	tmp.set(0, 0, 0, len, m_EmHeight * (1 + _lineSpacing * (_lineCount - 1)), 0);
 		}

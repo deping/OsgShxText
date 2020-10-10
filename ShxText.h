@@ -111,8 +111,8 @@ public:
     void showBox(bool val);
     void setBoxMargin(float m);
 
-	void setLayout(Layout layout);
-	Layout getLayout() const { return _layout; }
+	void setLayout(TextLayout layout);
+	TextLayout getLayout() const { return _layout; }
 	void setVKerning(double vkerning);
 	double getVKerning() const { return _verticalKerning; }
 
@@ -146,7 +146,7 @@ private:
     AlignmentType                           _alignment;
     osg::Quat                               _rotation;
     bool                                    _autoRotateToScreen;
-	Layout                                  _layout;
+	TextLayout                              _layout;
 	double									_verticalKerning;
     bool                                    _showBox;
     float                                   _margin;

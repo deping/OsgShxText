@@ -165,7 +165,7 @@ osg::Group* createTexts()
 			osg::ref_ptr<ShxText> pText2 = new ShxText();
 			pText2->setPosition(osg::Vec3(colWidth * i, pText->getLineCount() * rowHeight * j, 0));
 			pText2->setCharacterSize(textHeight);
-			pText2->setLayout(Layout::VERTICAL);
+			pText2->setLayout(TextLayout::VERTICAL);
 			pText2->setText(L"春眠不觉晓\n处处闻啼鸟\n夜来风雨声\n花落知多少\nwangwei");
 			pText2->setFontFile("txt.shx", "hztxt.shx");//THFont.shx gbcbig.shx
 			pText2->setBoxMargin(6);
